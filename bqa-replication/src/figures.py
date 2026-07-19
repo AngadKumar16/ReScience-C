@@ -13,6 +13,8 @@ import numpy as np
 
 from src import figure1, identifiability, mg_illustration, sbc
 
+from src.pathological_mg import run_pathological_mg_analysis
+
 
 def run_all(rng_seed: int = 0) -> None:
     """Run every figure/analysis stage."""
@@ -61,6 +63,9 @@ def run_all(rng_seed: int = 0) -> None:
         f"  q_true={mg_result['q_true']:.1f} pA, q_hat={mg_result['q_hat']:.1f} pA"
     )
     print(f"  n_true={mg_result['n_true']}, n_hat={mg_result['n_hat']:.2f}")
+
+print("=== True Pathological Myasthenia Gravis Stress Test ===")
+    run_pathological_mg_analysis()
 
 
 if __name__ == "__main__":
