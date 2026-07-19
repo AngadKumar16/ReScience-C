@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+results/calibration/*
+!results/calibration/.gitkeep
+results/identifiability/*
+!results/identifiability/.gitkeep
+.DS_Store
