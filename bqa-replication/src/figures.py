@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from src import figure1, identifiability, mg_illustration, sbc
+from src import figure1, identifiability, mg_illustration, plots, sbc
 
 from src.pathological_mg import run_pathological_mg_analysis
 
@@ -20,9 +20,13 @@ def run_all(rng_seed: int = 0) -> None:
     """Run every figure/analysis stage."""
     rng = np.random.default_rng(rng_seed)
 
+    figures_dir = plots.ensure_figures_dir()
+    print(f"Writing figures to {figures_dir}/")
+
     print("=== Fig 1A-D feasibility gate ===")
     _, gate_passed = figure1.plot_figure1()
     print("PASSED" if gate_passed else "NOT PASSED")
+    print(f"  wrote {plots.save_figure1(figures_dir)}")
 
     print("=== SBC calibration (smoke run, 20 iterations) ===")
     draws = sbc.run_sbc(
@@ -42,6 +46,7 @@ def run_all(rng_seed: int = 0) -> None:
         "  (20 iterations is a smoke run, not a well-powered calibration "
         "check -- increase n_iterations for a real SBC report.)"
     )
+    print(f"  wrote {plots.save_sbc_rank_histograms(draws, figures_dir)}")
 
     print("=== Identifiability map (DeltaP sweep, 76 points) ===")
     id_results = identifiability.run_identifiability_sweep(rng=rng)
@@ -56,6 +61,7 @@ def run_all(rng_seed: int = 0) -> None:
         f"  narrowest q 95% CI at DeltaP={narrowest['delta_p']:.2f} "
         f"(width={narrowest['q_ci95_width']:.1f} pA)"
     )
+    print(f"  wrote {plots.save_identifiability_map(id_results, figures_dir)}")
 
     print("=== MG (Gaussian-vs-gamma mismatch) detectability illustration ===")
     mg_result = mg_illustration.demonstrate_mg_detectability(rng=rng)
@@ -63,8 +69,9 @@ def run_all(rng_seed: int = 0) -> None:
         f"  q_true={mg_result['q_true']:.1f} pA, q_hat={mg_result['q_hat']:.1f} pA"
     )
     print(f"  n_true={mg_result['n_true']}, n_hat={mg_result['n_hat']:.2f}")
+    print(f"  wrote {plots.save_mg_posterior(mg_result, figures_dir)}")
 
-print("=== True Pathological Myasthenia Gravis Stress Test ===")
+    print("=== True Pathological Myasthenia Gravis Stress Test ===")
     run_pathological_mg_analysis()
 
 
