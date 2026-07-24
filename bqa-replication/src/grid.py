@@ -91,7 +91,11 @@ def v_jacobian(v: np.ndarray) -> np.ndarray:
     return 1.0 / np.asarray(v, dtype=float)
 
 
-def build_grid(n_values: np.ndarray) -> Grid:
+def build_grid(
+    n_values: np.ndarray,
+    p_resolution: int = P_RESOLUTION,
+    v_resolution: int = V_RESOLUTION,
+) -> Grid:
     """Construct the full BQA grid: p axis, v axis, and enumerated n.
 
     Parameters
@@ -100,6 +104,12 @@ def build_grid(n_values: np.ndarray) -> Grid:
         Integer release-site counts to enumerate (the n-axis is a caller-
         supplied enumeration, not a fixed resolution, since candidate n
         ranges depend on the dataset/experiment design).
+    p_resolution, v_resolution : int
+        Number of grid points on the arcsin(sqrt(p)) and log(v) axes.
+        Default to the paper's stated resolution (128). Exposed so the
+        resolution-bias check (src/resolution_check.py) can raise them and
+        confirm whether the histogram-resampling bias shrinks with a finer
+        grid.
 
     Returns
     -------
@@ -112,15 +122,17 @@ def build_grid(n_values: np.ndarray) -> Grid:
         raise ValueError("n_values must be a non-empty 1-D array of integers")
     if np.any(n_values < 1):
         raise ValueError("n_values must all be >= 1")
+    if p_resolution < 2 or v_resolution < 2:
+        raise ValueError("p_resolution and v_resolution must both be >= 2")
 
     theta_min = p_to_arcsin_sqrt(np.array(P_MIN))
     theta_max = p_to_arcsin_sqrt(np.array(P_MAX))
-    p_transformed = np.linspace(theta_min, theta_max, P_RESOLUTION)
+    p_transformed = np.linspace(theta_min, theta_max, p_resolution)
     p_values = arcsin_sqrt_to_p(p_transformed)
 
     log_v_min = v_to_log(np.array(V_MIN))
     log_v_max = v_to_log(np.array(V_MAX))
-    v_transformed = np.linspace(log_v_min, log_v_max, V_RESOLUTION)
+    v_transformed = np.linspace(log_v_min, log_v_max, v_resolution)
     v_values = log_to_v(v_transformed)
 
     return Grid(

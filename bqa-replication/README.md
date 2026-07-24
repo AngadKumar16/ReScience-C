@@ -91,11 +91,12 @@ the Eq. 8 implementation or its parameterisation is wrong, and any
 inference machinery built on top of it would only compound the error.
 Run `python -m src.figure1` to check gate status.
 
-The gate currently **passes qualitatively**: the resulting density is
-multimodal with peaks near integer multiples of q=100 pA, matching the
-paper's described shape. This has not been checked pixel-for-pixel against
-the published figure image (no digitized reference curve was available),
-so treat it as a qualitative pass, not a numeric one.
+The gate **passes a numeric check**: `figure1.gate_peak_check` locates the
+modes of Q(x) and requires each interior mode within 15% of an integer
+multiple of q. The modes land at 91.8 and 193.8 pA (q and 2q), max relative
+error 8.1%, asserted in `tests/test_consistency.py`. It is still not checked
+pixel-for-pixel against the published image (no digitized reference curve
+was available).
 
 ## Setup
 
@@ -112,11 +113,18 @@ or via conda: `conda env create -f environment.yml`.
 bash reproduce.sh
 ```
 
-Runs the test suite (`pytest -q`) followed by the full figure/analysis
-pipeline (`python -m src.figures`): the feasibility gate, a 20-iteration
-SBC smoke run, the 76-point identifiability sweep, and the MG-mismatch
-illustration. Expect this to take a few minutes (the identifiability sweep
-dominates).
+Runs the test suite (`pytest -q`, 23 tests) followed by the full
+figure/analysis pipeline (`python -m src.figures`): the numeric feasibility
+gate, a 200-iteration SBC calibration run, the 76-point identifiability
+sweep, the Gaussian-vs-gamma robustness illustration, the BQA-vs-MPFA
+comparison, the grid-resolution bias check, and the low-SNR stress test.
+Each stage uses an independently seeded generator and writes a CSV to
+`results/`. Expect a few minutes (the SBC run and identifiability sweep
+dominate).
+
+The powered SBC run reports that the q and r posteriors are NOT calibrated
+(biased low); this is a real finding, not a bug, and is discussed in
+`paper/content.md`.
 
 ## Repository layout
 
@@ -130,8 +138,11 @@ src/figure1.py               Fig 1A-D, feasibility gate
 src/sbc.py                    SBC loop + rank/PIT helpers + uniformity test
 src/identifiability.py         DeltaP identifiability sweep (novel analysis)
 src/mg_illustration.py          Gaussian-vs-gamma mismatch robustness illustration
-src/figures.py                   Top-level pipeline entry point
-tests/                             test_simulate.py, test_grid.py, test_q_model.py, test_bqa.py
+src/mpfa.py                      MPFA baseline + BQA-vs-MPFA comparison (novel)
+src/resolution_check.py          Grid-resolution bias check (novel)
+src/pathological_mg.py            Low signal-to-noise stress test (novel)
+src/figures.py                     Top-level pipeline entry point
+tests/                              test_simulate/grid/q_model/bqa/consistency/mpfa.py
 results/{calibration,identifiability}/  Output directories
 paper/                                    ReScience C submission materials
 ```

@@ -1,0 +1,5 @@
+parameter,nearest_ks_p,nearest_calib,linear_ks_p,linear_calib
+q,0.0000,False,0.0000,False
+r,0.0135,False,0.0280,False
+gamma,0.0584,True,0.0944,True
+n,0.2242,True,0.1076,True

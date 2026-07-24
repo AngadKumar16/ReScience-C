@@ -130,6 +130,7 @@ def compute_identifiability_metrics(
 def run_identifiability_sweep(
     rng: np.random.Generator | None = None,
     n_obs: int = N_OBS_PER_CONDITION,
+    per_point_base_seed: int | None = 1000,
 ) -> list[dict]:
     """Run the full DeltaP identifiability sweep (P1=0.1 fixed).
 
@@ -165,11 +166,19 @@ def run_identifiability_sweep(
 
     v_true = CV_INTRA
     results = []
-    for delta_p in delta_p_sweep_values():
+    for i, delta_p in enumerate(delta_p_sweep_values()):
         p1 = P1_FIXED
         p2 = P1_FIXED + delta_p
+        # Per-point independent RNG makes each sweep point reproducible on its
+        # own and order-independent (so the sweep can be checkpointed/resumed);
+        # pass per_point_base_seed=None to fall back to the shared rng.
+        point_rng = (
+            np.random.default_rng(per_point_base_seed + i)
+            if per_point_base_seed is not None
+            else rng
+        )
         metrics = compute_identifiability_metrics(
-            p1, p2, N_SITES, v_true, rng, n_obs=n_obs
+            p1, p2, N_SITES, v_true, point_rng, n_obs=n_obs
         )
         metrics["delta_p"] = float(delta_p)
         metrics["p1"] = p1

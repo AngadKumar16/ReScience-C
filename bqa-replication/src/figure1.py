@@ -86,6 +86,56 @@ def panel_d(x: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
     return x, q_values
 
 
+def gate_peak_check(tol_frac: float = 0.15) -> dict:
+    """Quantitative feasibility-gate check on Q(x) (Eq. 8).
+
+    The original paper describes the combined quantal likelihood as
+    multimodal with modes near integer multiples of the quantal size q.
+    Rather than a pixel comparison against the published image (no digitized
+    reference curve is available), this locates the modes of the implemented
+    Q(x) and checks that each interior mode sits within `tol_frac` of an
+    integer multiple of q. This turns the gate from a purely visual "looks
+    multimodal" into a reproducible numeric assertion.
+
+    Parameters
+    ----------
+    tol_frac : float
+        Allowed distance of each interior peak from its nearest multiple of
+        q, as a fraction of q (0.15 => within 15 pA for q = 100 pA).
+
+    Returns
+    -------
+    dict
+        "peaks_pa": located mode positions (pA); "nearest_multiple": the
+        integer multiple of q each peak maps to; "max_rel_error": largest
+        relative distance to a multiple among interior peaks; "n_modes":
+        number of modes found; "passed": bool.
+    """
+    from scipy.signal import find_peaks
+
+    x = np.linspace(-50, 700, 4000)
+    y = panel_d(x)[1]
+    idx, _ = find_peaks(y)
+    peaks = x[idx]
+
+    # Interior modes only: the near-zero failure mode (baseline-noise peak)
+    # is expected and not a multiple of q, so assess modes at x >= q/2.
+    interior = peaks[peaks >= Q_QUANTAL / 2]
+    multiples = np.round(interior / Q_QUANTAL)
+    multiples = np.clip(multiples, 1, None)
+    rel_err = np.abs(interior - multiples * Q_QUANTAL) / Q_QUANTAL
+    max_rel = float(rel_err.max()) if rel_err.size else 1.0
+
+    return {
+        "peaks_pa": peaks,
+        "interior_peaks_pa": interior,
+        "nearest_multiple": multiples,
+        "max_rel_error": max_rel,
+        "n_modes": int(peaks.size),
+        "passed": bool(interior.size >= 1 and max_rel <= tol_frac),
+    }
+
+
 def plot_figure1(save_path: str | None = None):
     """Scaffold plotting for all four Fig 1 panels.
 

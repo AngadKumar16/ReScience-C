@@ -361,6 +361,29 @@ def run_sbc(
     return draws
 
 
+def run_sbc_reproducible(
+    n_iterations: int,
+    n_candidates: Sequence[int],
+    n_obs_per_condition: int,
+    base_seed: int = 1,
+) -> list[SBCDraw]:
+    """Run SBC with an independent RNG per iteration.
+
+    Each iteration i uses `np.random.default_rng(base_seed, i)` (a distinct
+    spawned stream), so any single iteration reproduces on its own regardless
+    of how many came before it. This makes the SBC run both deterministic and
+    resumable: a partially completed run can be extended by computing only the
+    missing iteration indices, and the result does not depend on iteration
+    order. Preferred over threading one shared RNG through `run_sbc` when the
+    run is long enough to need checkpointing.
+    """
+    draws: list[SBCDraw] = []
+    for i in range(n_iterations):
+        rng = np.random.default_rng([base_seed, i])
+        draws.extend(run_sbc(1, n_candidates, n_obs_per_condition, rng))
+    return draws
+
+
 def sbc_uniformity_test(draws: list[SBCDraw]) -> dict:
     """Test whether SBC rank statistics are uniformly distributed.
 

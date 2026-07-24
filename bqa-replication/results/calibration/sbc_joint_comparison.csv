@@ -1,0 +1,7 @@
+method,q_ks_p,r_ks_p,gamma_ks_p,n_ks_p,median_qhat_over_qtrue,n_draws
+product,0.0,0.0135,0.0584,0.2242,,200
+loglik,0.0003,0.0011,0.0,0.1803,,200
+joint_geometric,0.0,0.0,0.0634,0.2261,0.996,200
+joint_induced,0.0,0.0,0.0083,0.3155,0.996,200
+joint_flat,0.0,0.0081,0.2926,0.0209,0.997,200
+joint_flat_res256,0.0,0.0073,0.1051,0.0289,0.998,200

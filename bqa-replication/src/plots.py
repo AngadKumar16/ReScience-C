@@ -86,6 +86,40 @@ def save_identifiability_map(id_results: Sequence[dict], figures_dir: str = FIGU
     return path
 
 
+def save_mpfa_comparison(mpfa_result: dict, figures_dir: str = FIGURES_DIR) -> str:
+    """Variance-mean parabola with BQA vs MPFA parameter estimates annotated."""
+    _require_mpl()
+    ensure_figures_dir(figures_dir)
+    mpfa = mpfa_result["mpfa"]
+    means = mpfa.means
+    variances = mpfa.variances
+
+    order = np.argsort(means)
+    grid_i = np.linspace(0, means.max() * 1.05, 200)
+    fit_curve = mpfa.slope * grid_i - grid_i**2 * (1.0 / mpfa.n_hat)
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.scatter(means[order], variances[order], color="black", zorder=3, label="conditions")
+    ax.plot(grid_i, fit_curve, color="tab:blue", label="MPFA parabola fit")
+    ax.set_xlabel("mean evoked response (pA)")
+    ax.set_ylabel("evoked variance (pA$^2$)")
+    txt = (
+        f"truth: q={mpfa_result['q_true']:.0f}, n={mpfa_result['n_true']}\n"
+        f"MPFA: q_app={mpfa_result['mpfa_q_apparent']:.1f}, "
+        f"q_corr={mpfa_result['mpfa_q_corrected']:.1f}, n={mpfa_result['mpfa_n_hat']:.2f}\n"
+        f"BQA: q={mpfa_result['bqa_q_hat']:.1f}, n={mpfa_result['bqa_n_hat']:.2f}"
+    )
+    ax.text(0.02, 0.98, txt, transform=ax.transAxes, va="top", fontsize=9,
+            bbox=dict(boxstyle="round", fc="white", ec="gray", alpha=0.9))
+    ax.set_title("BQA vs MPFA on identical data")
+    ax.legend(loc="lower right")
+    fig.tight_layout()
+    path = os.path.join(figures_dir, "mpfa_vs_bqa.png")
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 def save_mg_posterior(mg_result: dict, figures_dir: str = FIGURES_DIR) -> str:
     """MG mismatch: q posterior marginal with true vs estimated q marked."""
     _require_mpl()

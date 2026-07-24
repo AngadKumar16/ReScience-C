@@ -1,0 +1,15 @@
+# Local Claude / Cowork settings (not part of the project)
+.claude/
+
+# OS / editor cruft
+.DS_Store
+*.swp
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/

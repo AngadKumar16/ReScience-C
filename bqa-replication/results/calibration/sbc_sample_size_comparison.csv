@@ -1,0 +1,5 @@
+parameter,nobs40_ks_p,nobs40_calib,nobs200_ks_p,nobs200_calib
+q,0.0000,False,0.0000,False
+r,0.0135,False,0.0347,False
+gamma,0.0584,True,0.0007,False
+n,0.2242,True,0.0738,True
