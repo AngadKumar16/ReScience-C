@@ -1,3 +1,3 @@
 method,q_ks_p,r_ks_p,gamma_ks_p,n_ks_p,median_qhat_over_qtrue,n_draws
-product_geometric,0.0,0.0135,0.0584,0.2242,,200
+product_geometric,0.0,0.0135,0.0584,0.2242,0.997,200
 joint_geometric,0.0,0.0,0.0634,0.2261,0.996,200
