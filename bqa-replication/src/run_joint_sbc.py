@@ -165,11 +165,71 @@ def finalize(combine="joint", q_prior="geometric"):
     return report, median_ratio
 
 
+def _ks_report(rows):
+    report = {}
+    for name in ("q", "r", "gamma", "n"):
+        ranks = np.clip([r[f"{name}_rank"] for r in rows], 0.0, 1.0)
+        ks = stats.kstest(ranks, "uniform")
+        report[name] = {"ks_statistic": float(ks.statistic),
+                        "p_value": float(ks.pvalue),
+                        "calibrated": bool(ks.pvalue > 0.05),
+                        "n_draws": len(rows)}
+    median_ratio = float(np.median([r["q_hat"] / r["q_true"] for r in rows]))
+    return report, median_ratio
+
+
+def run_comparison(n_iterations=200,
+                   methods=(("product", "geometric"), ("joint", "geometric")),
+                   procs=4):
+    """Run several combination rules on IDENTICAL draws and write one CSV.
+
+    Non-checkpointed, in-memory, parallel; intended for the reproduce.sh
+    pipeline (`src/figures.py`). Every method sees the same per-iteration seed
+    (``default_rng([BASE_SEED, i])``, the same scheme the standalone batches and
+    the committed product SBC use), so the comparison is within-draw fair and
+    reproduces the committed numbers exactly. Writes
+    `results/calibration/sbc_joint_comparison.csv` and returns a dict of
+    per-method (report, median q_hat/q_true, rows).
+    """
+    os.makedirs(CAL_DIR, exist_ok=True)
+    out = {}
+    for combine, q_prior in methods:
+        with Pool(procs) as pool:
+            rows = pool.map(_one_iteration,
+                            [(i, combine, q_prior) for i in range(n_iterations)])
+        rows.sort(key=lambda r: r["iteration"])
+        report, median_ratio = _ks_report(rows)
+        out[f"{combine}_{q_prior}"] = (report, median_ratio, rows)
+
+    # Distinct filename: the pipeline regenerates this product-vs-joint subset
+    # reproducibly, while the richer multi-prior/multi-resolution
+    # `sbc_joint_comparison.csv` (Table 2) is assembled from the standalone
+    # `run_joint_sbc` runs.
+    path = os.path.join(CAL_DIR, "sbc_joint_vs_product.csv")
+    with open(path, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["method", "q_ks_p", "r_ks_p",
+                                          "gamma_ks_p", "n_ks_p",
+                                          "median_qhat_over_qtrue", "n_draws"])
+        w.writeheader()
+        for name, (report, mr, rows) in out.items():
+            w.writerow({"method": name,
+                        "q_ks_p": round(report["q"]["p_value"], 4),
+                        "r_ks_p": round(report["r"]["p_value"], 4),
+                        "gamma_ks_p": round(report["gamma"]["p_value"], 4),
+                        "n_ks_p": round(report["n"]["p_value"], 4),
+                        "median_qhat_over_qtrue": round(mr, 3),
+                        "n_draws": len(rows)})
+    print(f"  wrote {path}")
+    return out, path
+
+
 if __name__ == "__main__":
     combine = sys.argv[1] if len(sys.argv) > 1 else "joint"
     q_prior = sys.argv[2] if len(sys.argv) > 2 else "geometric"
     arg3 = sys.argv[3] if len(sys.argv) > 3 else "38"
     if arg3 == "finalize":
         finalize(combine, q_prior)
+    elif combine == "comparison":
+        run_comparison()
     else:
         batch(combine, q_prior, budget_s=float(arg3))

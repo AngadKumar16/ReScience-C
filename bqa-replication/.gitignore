@@ -17,6 +17,7 @@ results/calibration/*
 !results/calibration/sbc_results_loglik.csv
 !results/calibration/sbc_conditions_scaling.csv
 !results/calibration/sbc_joint_comparison.csv
+!results/calibration/sbc_joint_vs_product.csv
 !results/calibration/sbc_conditions_scaling_joint.csv
 !results/calibration/sbc_report_joint_geometric.csv
 !results/calibration/sbc_results_joint_geometric.csv

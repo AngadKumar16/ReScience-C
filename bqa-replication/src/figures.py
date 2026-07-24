@@ -95,6 +95,21 @@ def run_all(base_seed: int = 0, sbc_iterations: int = SBC_ITERATIONS) -> None:
     )
     print(f"  wrote {plots.save_sbc_rank_histograms(draws, figures_dir)}")
 
+    # --- Joint-grid vs product SBC comparison (Section 4.1) -----------------
+    print(f"=== Joint-grid vs product SBC ({sbc_iterations} iterations) ===")
+    from src import run_joint_sbc
+    comp, comp_csv = run_joint_sbc.run_comparison(
+        n_iterations=sbc_iterations,
+        methods=(("product", "geometric"), ("joint", "geometric")),
+    )
+    for name, (report, mr, _rows) in comp.items():
+        print(f"  {name}: " + ", ".join(
+            f"{p} p={s['p_value']:.3f}" for p, s in report.items())
+            + f"  (median q_hat/q_true={mr:.3f})")
+    print(f"  wrote {comp_csv}")
+    rows_by_method = {name: rows for name, (_r, _m, rows) in comp.items()}
+    print(f"  wrote {plots.save_joint_vs_product_histograms(rows_by_method, figures_dir)}")
+
     # --- Identifiability sweep ---------------------------------------------
     print("=== Identifiability map (DeltaP sweep, 76 points) ===")
     id_results = identifiability.run_identifiability_sweep()

@@ -67,6 +67,39 @@ def save_sbc_rank_histograms(draws, figures_dir: str = FIGURES_DIR) -> str:
     return path
 
 
+def save_joint_vs_product_histograms(rows_by_method, figures_dir: str = FIGURES_DIR) -> str:
+    """Overlay SBC PIT histograms for the joint grid vs the product method.
+
+    `rows_by_method` maps a method label to its list of per-iteration result
+    dicts (keys ``q_rank``/``r_rank``/``gamma_rank``/``n_rank``), as produced by
+    `src.run_joint_sbc.run_comparison`. Flat bars => calibrated; the joint grid
+    should flatten gamma and n relative to product while q and r stay skewed.
+    """
+    _require_mpl()
+    ensure_figures_dir(figures_dir)
+    params = ["q", "r", "gamma", "n"]
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    colors = {"product": "tab:orange", "joint": "tab:blue"}
+    for ax, param in zip(axes.ravel(), params):
+        for label, rows in rows_by_method.items():
+            ranks = [r[f"{param}_rank"] for r in rows]
+            n_bins = max(5, int(np.sqrt(max(len(ranks), 1))))
+            key = "joint" if "joint" in label else ("product" if "product" in label else label)
+            ax.hist(ranks, bins=n_bins, range=(0.0, 1.0), histtype="step",
+                    lw=2, label=label, color=colors.get(key))
+            ax.axhline(len(ranks) / n_bins, color="gray", ls="--", lw=1)
+        ax.set_title(f"SBC PIT: {param}")
+        ax.set_xlabel("PIT rank")
+        ax.set_ylabel("count")
+        ax.legend(fontsize=8)
+    fig.suptitle("SBC rank calibration: joint grid vs product combination")
+    fig.tight_layout()
+    path = os.path.join(figures_dir, "sbc_joint_vs_product.png")
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 def save_identifiability_map(id_results: Sequence[dict], figures_dir: str = FIGURES_DIR) -> str:
     """q 95% CI width vs DeltaP -- the identifiability sweep."""
     _require_mpl()
