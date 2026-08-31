@@ -27,6 +27,22 @@ results/calibration/*
 !results/calibration/sbc_results_joint_flat.csv
 !results/calibration/sbc_report_joint_flat_res256.csv
 !results/calibration/sbc_results_joint_flat_res256.csv
+!results/calibration/sbc_report_product_geometric.csv
+!results/calibration/sbc_results_product_geometric.csv
+!results/calibration/sbc_self_consistency_k1.csv
+!results/calibration/sbc_fixed_n_summary.csv
+!results/calibration/sbc_fixed_n_ranks.csv
+!results/calibration/pit_diagnostics_summary.csv
+!results/calibration/pit_diagnostics_ranks.csv
+!results/calibration/sbc_n_marginalisation_summary.csv
+!results/calibration/sbc_n_marginalisation_ranks.csv
+!results/calibration/sbc_mu_conditioning_summary.csv
+!results/calibration/sbc_mu_conditioning_ranks.csv
+
+# Superseded pre-PIT-fix numbers, kept so PIT_DEFECT.md's before/after tables
+# can be checked against the files that produced them.
+!results/calibration/legacy_pit/
+!results/calibration/legacy_pit/*.csv
 results/identifiability/*
 !results/identifiability/.gitkeep
 !results/identifiability/pathological_mg_results.csv
@@ -35,4 +51,6 @@ results/identifiability/*
 !results/identifiability/mg_result.csv
 !results/identifiability/mpfa_vs_bqa.csv
 !results/identifiability/figure1_gate.csv
+!results/identifiability/resolution_bias_summary.csv
+!results/identifiability/low_snr_seed_ensemble.csv
 .DS_Store

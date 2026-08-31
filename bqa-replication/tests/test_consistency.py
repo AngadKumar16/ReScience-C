@@ -15,7 +15,7 @@ from src.bqa import (
     change_of_variables_and_marginalise,
     per_condition_log_likelihood,
 )
-from src.figure1 import gate_peak_check
+from src.figure1 import GAMMA_LAMBDA, GAMMA_SHAPE, Q_QUANTAL, gate_peak_check, panel_c
 from src.grid import build_grid
 from src.q_model import q_function
 from src.simulate_q import simulate_from_q_model
@@ -130,3 +130,31 @@ def test_product_combination_oversharpens_with_more_conditions():
     # loglik still conserves mass and does not collapse as hard.
     sd_3_loglik = sd_for([0.2, 0.4, 0.6], "loglik")
     assert sd_3_loglik > sd_3
+
+
+def test_panel_c_uses_lambda_as_scale_not_rate():
+    """Fig. 1C must be the gamma whose mean IS the quantal size.
+
+    Eq. 7 sets q = gamma * lambda, so lambda is the scale. Passing it to
+    scipy as a rate (scale=1/lambda) puts the mean at 1.23 pA instead of
+    100 pA, which renders the published panel empty on its 0-300 pA axis.
+    This regression test pins the parameterisation to the one
+    `src.q_model.q_function` uses.
+    """
+    x, pdf = panel_c()
+    mass = np.trapezoid(pdf, x)
+    mean = np.trapezoid(x * pdf, x)
+    assert np.isclose(mass, 1.0, atol=1e-3), "panel C truncated: density does not integrate to 1"
+    assert np.isclose(mean, Q_QUANTAL, rtol=1e-3)
+    assert np.isclose(GAMMA_SHAPE * GAMMA_LAMBDA, Q_QUANTAL)
+    # The panel must actually be visible on its own axis.
+    assert x[np.argmax(pdf)] > 50.0
+
+
+def test_panel_c_matches_q_model_single_quantum_term():
+    """Panel C and the i = 1 gamma term of Eq. 8 must be the same density."""
+    from scipy import stats
+
+    x, pdf = panel_c()
+    reference = stats.gamma.pdf(x, a=GAMMA_SHAPE, scale=GAMMA_LAMBDA)
+    assert np.allclose(pdf, reference)

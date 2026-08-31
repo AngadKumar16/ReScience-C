@@ -170,16 +170,89 @@ def jittered_rank_discrete(
     return n_less + jitter
 
 
+def weighted_cdf_pit_legacy(
+    true_value: float, axis_values: np.ndarray, weights: np.ndarray
+) -> float:
+    """The pre-2026-08 PIT. Retained only to reproduce the superseded numbers.
+
+    DEFECTIVE -- do not use for new results. See `weighted_cdf_pit` for the
+    diagnosis. Kept because every rank statistic committed before the fix
+    (results/calibration/sbc_report*.csv, sbc_fixed_n_summary.csv, and the
+    KS p-values quoted in the paper's Tables 1-4) was produced by this
+    function, and a reader must be able to regenerate them.
+    """
+    weights = np.asarray(weights, dtype=float)
+    total = weights.sum()
+    if total <= 0:
+        raise ValueError("weights must sum to a positive value")
+    weights = weights / total
+
+    idx = np.searchsorted(axis_values, true_value)
+    idx = np.clip(idx, 0, len(axis_values) - 1)
+    mass_below = weights[:idx].sum()
+    mass_at = weights[idx]
+    return float(mass_below + 0.5 * mass_at)
+
+
+def _uniform_coordinate(axis_values: np.ndarray) -> np.ndarray:
+    """Return the axis in whichever coordinate it is (near-)evenly spaced.
+
+    The q and r axes are geomspace, the gamma axis derives from a log-spaced
+    v axis, and the p axis is even in arcsin(sqrt p) but not in p. Reading
+    each in its own even coordinate makes the interpolation below equally
+    accurate on all of them.
+    """
+    x = np.asarray(axis_values, dtype=float)
+    if x.size < 3:
+        return x
+    if np.all(x > 0):
+        lx = np.log(x)
+        dl = np.diff(lx)
+        dx = np.diff(x)
+        if np.ptp(dl) / max(abs(np.mean(dl)), 1e-300) < np.ptp(dx) / max(
+            abs(np.mean(dx)), 1e-300
+        ):
+            return lx
+    return x
+
+
 def weighted_cdf_pit(true_value: float, axis_values: np.ndarray, weights: np.ndarray) -> float:
     """Probability integral transform of `true_value` under a discretized marginal.
 
     Standard SBC uses ranks among L posterior samples, which reduce (under
     calibration) to Uniform(0, L); dividing by L gives a PIT value uniform
-    on (0, 1). Since BQA is grid/brute-force rather than sample-based, we
-    compute the PIT directly from the (normalised) weighted marginal
-    posterior: the cumulative mass strictly below `true_value`, plus half
-    the mass in `true_value`'s own bin (mid-P correction, avoiding the
-    discretization bias of using pure left- or right-cumulative mass).
+    on (0, 1). Since BQA is grid/brute-force rather than sample-based, the
+    PIT is computed directly from the normalised weighted marginal.
+
+    History
+    -------
+    The original implementation returned ``mass_below + 0.5 * mass_at`` with
+    ``idx = np.searchsorted(axis_values, true_value)``. That is off by half a
+    cell. ``searchsorted`` (side="left") returns the first index whose axis
+    value is >= `true_value`, so ``weights[:idx]`` already contains the ENTIRE
+    cell below the true value and ``weights[idx]`` is the cell ABOVE it: the
+    intended mid-P half-credit was applied to the wrong cell. The resulting
+    bias is bounded by one cell's mass, is never negative, and averages about
+    half a cell's mass -- so it inflates every rank, and inflates them most
+    where the posterior is narrow relative to the grid.
+
+    That defect, not any property of BQA, produced the one-sided quantal-size
+    miscalibration reported in earlier drafts of the replication (K = 1 with n
+    fixed: 17.0% of truths above the posterior's 95th percentile against 2.0%
+    below, KS p = 1.2e-8). Recomputing the identical posteriors with the
+    corrected transform below returns KS p = 0.11, 4.5% above p95 and 2.0%
+    below. `src/pit_diagnostics.py` carries the evidence, including the
+    independent check that the bias reverses sign when the same function is
+    applied on the p axis and mapped through the decreasing q = mu/(n p).
+
+    Method
+    ------
+    Treat `weights` as probability mass located at the axis points. The
+    cumulative distribution then takes the value ``cumsum(w) - w/2`` AT each
+    axis point (half the point's own mass has accumulated by the time the
+    axis point is reached), and is interpolated linearly between them, in the
+    coordinate where the axis is evenly spaced (log for the geomspace q and r
+    axes). This is exact at the nodes and carries no systematic offset.
 
     Parameters
     ----------
@@ -195,17 +268,26 @@ def weighted_cdf_pit(true_value: float, axis_values: np.ndarray, weights: np.nda
     float
         PIT value in [0, 1].
     """
-    weights = np.asarray(weights, dtype=float)
-    total = weights.sum()
+    w = np.asarray(weights, dtype=float)
+    total = w.sum()
     if total <= 0:
         raise ValueError("weights must sum to a positive value")
-    weights = weights / total
+    w = w / total
 
-    idx = np.searchsorted(axis_values, true_value)
-    idx = np.clip(idx, 0, len(axis_values) - 1)
-    mass_below = weights[:idx].sum()
-    mass_at = weights[idx]
-    return float(mass_below + 0.5 * mass_at)
+    x = _uniform_coordinate(axis_values)
+    raw = np.asarray(axis_values, dtype=float)
+    t = float(true_value)
+    if x is not raw:  # working in log coordinate
+        if t <= 0:
+            return 0.0
+        t = float(np.log(t))
+
+    cum = np.cumsum(w) - 0.5 * w
+    if t <= x[0]:
+        return 0.0
+    if t >= x[-1]:
+        return 1.0
+    return float(np.clip(np.interp(t, x, cum), 0.0, 1.0))
 
 
 def jittered_rank_from_pmf(

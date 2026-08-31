@@ -37,3 +37,36 @@ python -m src.sbc_fixed_n_check
 echo
 echo "Running grid-resolution sweep (Section 4.5)..."
 python -m src.resolution_check
+
+# PIT diagnostics (PIT_DEFECT.md): the three independent confirmations that
+# the earlier quantal-size failure was a defect in our own rank statistic.
+echo
+echo "Running PIT diagnostics..."
+python -m src.pit_diagnostics
+
+# Localisation of the residual: how the quantal-size rank statistic responds
+# to the width of the candidate-n set (Section 4.1.1).
+echo
+echo "Running n-marginalisation sweep..."
+python -m src.n_marginalisation_check
+
+# Is conditioning on a data-derived mu responsible? True mean vs sample mean,
+# same draws, same amplitudes (Section 4.1.1).
+echo
+echo "Running mu-conditioning check..."
+python -m src.mu_conditioning_check
+
+# Alternative shared-q priors and the resolution-256 run behind Table 3.
+echo
+echo "Running joint-SBC prior and resolution variants..."
+for prior in geometric induced flat; do
+  python -m src.run_joint_sbc joint "$prior" 1e9
+  python -m src.run_joint_sbc joint "$prior" finalize
+done
+BQA_SBC_RES=256 python -m src.run_joint_sbc joint flat 1e9
+BQA_SBC_RES=256 python -m src.run_joint_sbc joint flat finalize
+
+# Low signal-to-noise twelve-seed ensemble (Section 4.5).
+echo
+echo "Running low signal-to-noise seed ensemble..."
+python -m src.low_snr_seeds

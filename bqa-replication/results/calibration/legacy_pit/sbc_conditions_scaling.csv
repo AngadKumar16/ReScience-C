@@ -1,0 +1,4 @@
+n_conditions,product_ks_p,product_overconf,loglik_ks_p,loglik_overconf,density_ks_p,density_overconf
+1,0.1629,1.05,0.2714,1.05,0.1629,1.05
+2,0.0227,1.35,0.2309,1.19,0.0227,1.40
+3,0.0069,3.86,0.3671,2.76,0.0031,3.55

@@ -60,10 +60,17 @@ def panel_b(x: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
 
 
 def panel_c(x: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
-    """Panel C: Gamma G(x | shape=11.1, rate=9) quantal amplitude distribution."""
+    """Panel C: Gamma G(x | shape=11.1, SCALE=9) quantal amplitude distribution.
+
+    lambda is the SCALE, not the rate: Eq. 7 gives q = gamma * lambda, so
+    11.1 * 9 = 100 pA, which is the paper's stated quantal size. This matches
+    `src.q_model.q_function`, which also passes lambda as `scale`. Passing it
+    as a rate would put the mean at 1.23 pA and render the panel empty on the
+    0-300 pA axis.
+    """
     if x is None:
         x = np.linspace(0, 300, 500)
-    pdf = stats.gamma.pdf(x, a=GAMMA_SHAPE, scale=1.0 / GAMMA_LAMBDA)
+    pdf = stats.gamma.pdf(x, a=GAMMA_SHAPE, scale=GAMMA_LAMBDA)
     return x, pdf
 
 
