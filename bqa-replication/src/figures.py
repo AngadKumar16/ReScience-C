@@ -152,11 +152,11 @@ def run_all(base_seed: int = 0, sbc_iterations: int = SBC_ITERATIONS) -> None:
 
     # --- Grid-resolution bias check ----------------------------------------
     print("=== Grid-resolution bias check ===")
-    bias = run_resolution_bias()
+    _, bias = run_resolution_bias()
     for _, row in bias.iterrows():
-        print(f"  res={int(row['resolution'])}: q_hat={row['q_hat']:.1f} "
-              f"(err {row['q_abs_error']:.1f}), n_hat={row['n_hat']:.2f} "
-              f"(err {row['n_abs_error']:.2f})")
+        print(f"  res={int(row['resolution'])}: q_hat={row['q_hat_mean']:.1f} "
+              f"(mean abs err {row['q_abs_error_mean']:.2f}), "
+              f"n_hat={row['n_hat_mean']:.2f} ({int(row['n_seeds'])} seeds)")
 
     # --- Low-SNR stress test ------------------------------------------------
     print("=== Low signal-to-noise stress test ===")

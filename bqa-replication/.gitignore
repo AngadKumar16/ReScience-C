@@ -39,7 +39,7 @@ results/calibration/*
 !results/calibration/sbc_mu_conditioning_summary.csv
 !results/calibration/sbc_mu_conditioning_ranks.csv
 
-# Superseded pre-PIT-fix numbers, kept so PIT_DEFECT.md's before/after tables
+# Superseded pre-PIT-fix numbers, kept so the before/after PIT tables
 # can be checked against the files that produced them.
 !results/calibration/legacy_pit/
 !results/calibration/legacy_pit/*.csv

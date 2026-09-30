@@ -31,11 +31,9 @@ original authors' code ([Pyclamp](https://github.com/Bhumbra/Pyclamp),
 pieces of the method -- including the Eq. 8 gamma quantal likelihood
 (`src/q_model.py::q_function`) and the Appendix A1-A13 grid
 change-of-variables and marginalisation (`src/bqa.py`) -- are now
-implemented, transcribed directly from the paper text; see `NOTES.md` for
-the transcribed equations and `reproduction_map.md` for the full
-element-to-code mapping, including known limitations and one place (SBC's
-prior over q) where a necessary modeling convention was added that is not
-in the paper, clearly labeled as such.
+implemented, transcribed directly from the paper text. One necessary
+modeling convention not in the paper (SBC's prior over q) was added and is
+clearly labeled as such in the code.
 
 No numeric results from the paper are hardcoded anywhere in this repo.
 
@@ -53,9 +51,6 @@ BQA infers (p1, p2, v, n) by **brute-force grid search**, not MCMC:
   computed from data -- not sampled parameters.
 - q, lambda, and r are derived quantities, not free parameters. n is
   estimated as `median(r) / median(q)`.
-
-See `NOTES.md` for the full list of confirmed constants and open items, and
-`reproduction_map.md` for a paper-element-to-code-location table.
 
 ## The two-simulator rule
 
@@ -122,9 +117,11 @@ Each stage uses an independently seeded generator and writes a CSV to
 `results/`. Expect a few minutes (the SBC run and identifiability sweep
 dominate).
 
-The powered SBC run reports that the q and r posteriors are NOT calibrated
-(biased low); this is a real finding, not a bug, and is discussed in
-`paper/content.md`.
+SBC ranks use the corrected PIT (`src/sbc.py::weighted_cdf_pit`); the
+pre-fix transform is kept as `weighted_cdf_pit_legacy` only to reproduce
+superseded numbers (`results/calibration/legacy_pit/`). With n fixed the q
+marginal is calibrated; the remaining q miscalibration comes from
+marginalising over n (`src/n_marginalisation_check.py`).
 
 ## Repository layout
 
@@ -144,12 +141,7 @@ src/pathological_mg.py            Low signal-to-noise stress test (novel)
 src/figures.py                     Top-level pipeline entry point
 tests/                              test_simulate/grid/q_model/bqa/consistency/mpfa.py
 results/{calibration,identifiability}/  Output directories
-paper/                                    ReScience C submission materials
 ```
-
-See `reproduction_map.md` for the full paper-element-to-code map (with
-per-item status/caveats) and `NOTES.md` for confirmed constants, settled
-prior choices, transcribed equations, and known limitations.
 
 ## License
 

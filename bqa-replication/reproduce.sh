@@ -38,7 +38,7 @@ echo
 echo "Running grid-resolution sweep (Section 4.5)..."
 python -m src.resolution_check
 
-# PIT diagnostics (PIT_DEFECT.md): the three independent confirmations that
+# PIT diagnostics: the three independent confirmations that
 # the earlier quantal-size failure was a defect in our own rank statistic.
 echo
 echo "Running PIT diagnostics..."
