@@ -71,7 +71,7 @@ from src.bqa import (
     per_condition_log_likelihood,
 )
 from src.grid import build_grid
-from src.sbc import SBC_EPS2, sample_prior, weighted_cdf_pit
+from src.sbc import SBC_EPS2, sample_prior, weighted_cdf_pit, weighted_cdf_pit_legacy
 from src.simulate_q import simulate_from_q_model
 
 N_CANDIDATES = [4, 5, 6, 7, 8]
@@ -143,7 +143,7 @@ def test_pit_mass_vs_density(n_samples: int = 4000, seed: int = 0) -> pd.DataFra
     samples = np.exp(rng.normal(math.log(scale), s, size=n_samples))
     rows = []
     for label, w in (("mass", mass), ("density", density)):
-        ranks = np.array([weighted_cdf_pit(x, q_axis, w) for x in samples])
+        ranks = np.array([weighted_cdf_pit_legacy(x, q_axis, w) for x in samples])
         ranks_i = np.array([pit_interpolated(x, q_axis, w) for x in samples])
         rows.append({
             "input": label,
@@ -207,7 +207,7 @@ def _one_iteration(i: int) -> dict:
     log_l = per_condition_log_likelihood(conds[0], grid, n_true)
     mass_pv = _normalize_log_grid(log_l)
     p_marg = mass_pv.sum(axis=1)
-    rank_p = weighted_cdf_pit(p1, grid.p_values, p_marg)
+    rank_p = weighted_cdf_pit_legacy(p1, grid.p_values, p_marg)
     rank_p_interp_raw = _pit_interp_linear(p1, grid.p_values, p_marg)
     # q = mu/(n p) is strictly DECREASING in p, so the q rank is 1 - p rank.
     rank_p_direct = 1.0 - rank_p
@@ -225,11 +225,11 @@ def _one_iteration(i: int) -> dict:
         "q_true": q_true,
         "p1_true": p1,
         "n_true": n_true,
-        "rank_current": weighted_cdf_pit(q_true, q_axis, q_marg),
+        "rank_current": weighted_cdf_pit_legacy(q_true, q_axis, q_marg),
         "rank_interp": pit_interpolated(q_true, q_axis, q_marg),
         "rank_p_direct": rank_p_direct,
         "rank_p_direct_interp": rank_p_direct_interp,
-        "rank_res256": weighted_cdf_pit(q_true, post_f["q_axis"],
+        "rank_res256": weighted_cdf_pit_legacy(q_true, post_f["q_axis"],
                                         post_f["q_marginal"]),
         "rank_res256_interp": pit_interpolated(q_true, post_f["q_axis"],
                                                post_f["q_marginal"]),

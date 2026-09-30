@@ -2,9 +2,7 @@ name: bqa-replication
 channels:
   - conda-forge
 dependencies:
-  - python=3.11
-  - numpy
-  - scipy
-  - matplotlib
-  - pytest
+  - python=3.13
   - pip
+  - pip:
+      - -r requirements.txt
