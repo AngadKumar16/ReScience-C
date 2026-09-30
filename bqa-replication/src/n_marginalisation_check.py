@@ -2,7 +2,7 @@
 
 Why this exists
 ---------------
-After the `weighted_cdf_pit` fix (see PIT_DEFECT.md) the localisation flipped.
+After the `weighted_cdf_pit` fix (see src/pit_diagnostics.py) the localisation flipped.
 The per-condition posterior over release probability is calibrated: at K = 1
 with n fixed to the truth the quantal-size rank statistic passes
 (`src/sbc_fixed_n_check.py`, KS p = 0.107). The same configuration with n

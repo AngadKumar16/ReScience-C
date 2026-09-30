@@ -2,8 +2,7 @@
 across conditions, change of variables to (q, gamma, r), and marginalisation
 to posteriors over (p1, p2, v, n).
 
-Reference (paper equations, transcribed from the published PDF; see
-NOTES.md for provenance):
+Reference (paper equations, transcribed from the published PDF):
 
   Condition means mu_k and baseline-noise variance eps^2 are FIXED KNOWN
   inputs (METHODS, "Quantal probabilities").
@@ -747,7 +746,7 @@ def heterogeneous_release_pmf(
     product rule into the pmf for i total successes.
 
     WARNING: this is the hardest, most compute-intensive step in the paper
-    (explicitly flagged as such in NOTES.md). Cost is O(2^n * n); it is
+    (explicitly flagged as such in the paper). Cost is O(2^n * n); it is
     only practical for small n (single digits). It does NOT sample p per
     site from the Beta distribution directly per permutation -- doing so
     would require re-deriving per-site probabilities analytically. Instead,

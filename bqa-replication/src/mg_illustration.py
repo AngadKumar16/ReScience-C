@@ -1,8 +1,7 @@
 """Model-mismatch-Gaussian ("MG") detectability illustration.
 
 NOTE(author) on the "MG" naming: the source paper's text does not use the
-literal acronym "MG"; the glossary and body text were checked directly (see
-NOTES.md for provenance) and no such term appears. This module instead
+literal acronym "MG"; the glossary and body text were checked directly and no such term appears. This module instead
 implements the closest concretely-documented phenomenon in the paper that
 "MG detectability" could plausibly refer to -- the paper's own explicit
 claim (METHODS/Results/Discussion) that data simulated under a *Gaussian*

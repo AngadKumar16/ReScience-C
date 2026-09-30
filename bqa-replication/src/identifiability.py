@@ -23,7 +23,7 @@ from src.bqa import ConditionData, change_of_variables_and_marginalise
 from src.grid import build_grid
 from src.simulate_q import simulate_from_q_model
 
-# Confirmed sweep constants (see NOTES.md).
+# Confirmed sweep constants (from the paper text).
 P1_FIXED = 0.1
 DELTA_P_MIN = 0.05
 DELTA_P_MAX = 0.80
@@ -136,8 +136,7 @@ def run_identifiability_sweep(
 
     For each DeltaP in `delta_p_sweep_values()`, sets P2 = P1_FIXED + DeltaP,
     simulates condition data at the paper's confirmed constants (q=100 pA,
-    n=6 sites, v=CV_intra=0.3, baseline SD=25 pA, 60 obs/condition -- see
-    NOTES.md), runs BQA inference, and records identifiability metrics.
+    n=6 sites, v=CV_intra=0.3, baseline SD=25 pA, 60 obs/condition), runs BQA inference, and records identifiability metrics.
 
     This is a novel analysis (the original paper never performed it); no
     paper-derived numeric results are used as expected/reference values

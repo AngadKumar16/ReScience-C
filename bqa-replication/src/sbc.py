@@ -30,7 +30,7 @@ SBC-ONLY ADDED CONVENTION (not from the paper -- read before using):
   range. This is a scaffolding necessity for calibration testing, not a
   claim about the paper's model or a reproduction of its numeric results.
   Baseline noise variance eps^2 is likewise fixed to the paper's confirmed
-  Fig. 1B / simulation constant (25 pA SD, see NOTES.md) for the same
+  Fig. 1B / simulation constant (25 pA SD) for the same
   reason -- SBC needs a concrete value, and the paper does not model eps^2
   as inferred either.
 """

@@ -39,14 +39,15 @@ H3 -- grid discretisation. If the defect shrinks as the axes are refined it
 
 Per draw the module records five ranks, all on the identical simulated data:
 
-    rank_current   the shipped route (joint grid, induced prior, PIT as-is)
+    rank_current   the shipped route (joint grid, induced prior) ranked with the
+                   pre-fix `weighted_cdf_pit_legacy` (the defect under test)
     rank_interp    the same posterior, corrected interpolated PIT (H2)
     rank_p_direct  computed on the (arcsin sqrt p, log v) grid with no
                    transport and no log q axis, mapped through the strictly
                    decreasing q = mu/(n p); at fixed mu and n the PIT is
                    invariant under this map, so this must agree with
                    rank_current up to quadrature (H3 / localisation)
-    rank_res256    the shipped route at resolution 512 (H3)
+    rank_res256    the shipped route at resolution 256, legacy PIT (H3)
     sd_log_q       posterior SD of log q, which is what a shift-type
                    explanation has to be measured against
 
@@ -147,7 +148,7 @@ def test_pit_mass_vs_density(n_samples: int = 4000, seed: int = 0) -> pd.DataFra
         ranks_i = np.array([pit_interpolated(x, q_axis, w) for x in samples])
         rows.append({
             "input": label,
-            "pit": "weighted_cdf_pit",
+            "pit": "weighted_cdf_pit_legacy",
             "ks_p": stats.kstest(ranks, "uniform").pvalue,
             "mean_pit": ranks.mean(),
             "frac_above_p95": float((ranks > 0.95).mean()),
@@ -294,11 +295,11 @@ def collect_chunks() -> pd.DataFrame:
 
 
 ROUTES = [
-    ("rank_current", "shipped (joint, res 128, weighted_cdf_pit)"),
+    ("rank_current", "shipped (joint, res 128, weighted_cdf_pit_legacy)"),
     ("rank_interp", "same posterior, interpolated PIT"),
-    ("rank_p_direct", "p grid direct, weighted_cdf_pit"),
+    ("rank_p_direct", "p grid direct, weighted_cdf_pit_legacy"),
     ("rank_p_direct_interp", "p grid direct, interpolated PIT"),
-    ("rank_res256", "shipped route at res 256"),
+    ("rank_res256", "shipped route at res 256, weighted_cdf_pit_legacy"),
     ("rank_res256_interp", "res 256, interpolated PIT"),
 ]
 
@@ -314,11 +315,11 @@ def run(n_iterations: int = N_ITERATIONS, procs: int = 4) -> pd.DataFrame:
     df = pd.DataFrame(rows)
 
     routes = [
-        ("rank_current", "shipped (joint, res 128, weighted_cdf_pit)"),
+        ("rank_current", "shipped (joint, res 128, weighted_cdf_pit_legacy)"),
         ("rank_interp", "same posterior, interpolated PIT"),
-        ("rank_p_direct", "p grid direct, weighted_cdf_pit"),
+        ("rank_p_direct", "p grid direct, weighted_cdf_pit_legacy"),
         ("rank_p_direct_interp", "p grid direct, interpolated PIT"),
-        ("rank_res256", "shipped route at res 256"),
+        ("rank_res256", "shipped route at res 256, weighted_cdf_pit_legacy"),
         ("rank_res256_interp", "res 256, interpolated PIT"),
     ]
     summary = pd.DataFrame([_summarise(df[c].to_numpy(), label)

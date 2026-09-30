@@ -7,8 +7,8 @@ data, so it is the cheapest possible check that the Q-function
   A: Binomial B(i | 6, 0.35) -- release-count distribution.
   B: Normal N(x | 0, 625), i.e. baseline noise, SD 25 pA.
   C: Gamma G(x | 11.1, 9) -- quantal amplitude distribution, so
-     q = gamma*lambda = 100 pA and CV = 1/sqrt(gamma) ~ 0.30 (see confirmed
-     constants in NOTES.md).
+     q = gamma*lambda = 100 pA and CV = 1/sqrt(gamma) ~ 0.30 (confirmed
+     constants from the paper text).
   D: the combined quantal likelihood Q -- calls q_model.q_function.
 
 GO/NO-GO GATE: Panel D is the go/no-go checkpoint for the entire project.
@@ -16,7 +16,7 @@ Do not trust src/bqa.py's inference pipeline (grid search over conditions)
 unless panel D reproduces the published figure. As implemented, the gate
 currently PASSES qualitatively (multimodal, peaks near integer multiples of
 q=100 pA, matching the paper's described shape) but has not been checked
-pixel-for-pixel against the published figure image -- see NOTES.md. If a
+pixel-for-pixel against the published figure image. If a
 future change to q_model.q_function breaks this qualitative match, STOP:
 the mismatch means the Eq. 8 implementation or its parameterisation is
 wrong, and any inference machinery built on top of it would be unreliable.
@@ -34,7 +34,7 @@ except ImportError:  # pragma: no cover
 
 from src import q_model
 
-# Confirmed constants (see NOTES.md).
+# Confirmed constants (from the paper text).
 N_SITES = 6
 P_RELEASE = 0.35
 BASELINE_SD = 25.0  # pA
