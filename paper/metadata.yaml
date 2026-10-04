@@ -1,0 +1,72 @@
+# To be filled by the author(s) at the time of submission
+# -------------------------------------------------------
+
+title: "[Re] Reliable evaluation of the quantal determinants of synaptic efficacy using Bayesian analysis"
+
+authors:
+  - name: Angad Kumar
+    orcid:
+    email: angadkumar16ak@gmail.com
+    affiliations: 1
+  - name: Noah Ahuja
+    orcid:
+    email: noahsahuja@gmail.com
+    affiliations: 1
+
+affiliations:
+  - code: 1
+    name: Obra D. Tompkins High School
+    address: Katy, Texas, USA
+
+type: Replication
+language: Python
+domain: Computational Neuroscience
+keywords: [Bayesian quantal analysis, synaptic transmission, simulation-based calibration, identifiability, reproducibility, Python]
+
+code:
+  - url: https://github.com/AngadKumar16/ReScience-C
+  - doi:
+  - swh:
+
+data:
+  - url:
+  - doi:
+
+contributors:
+  - name:
+    orcid:
+    role: editor
+  - name:
+    orcid:
+    role: reviewer
+  - name:
+    orcid:
+    role: reviewer
+
+review:
+  - url:
+
+replication:
+  - cite: "G. S. Bhumbra and M. Beato. Reliable evaluation of the quantal determinants of synaptic efficacy using Bayesian analysis. Journal of Neurophysiology 109(2), 603-620 (2013)."
+  - bib: bhumbra2013
+  - url: https://journals.physiology.org/doi/10.1152/jn.00528.2012
+  - doi: 10.1152/jn.00528.2012
+
+date:
+  - received:
+  - accepted:
+  - published:
+
+article:
+  - number:
+  - doi:
+  - url:
+
+journal:
+  - name: "ReScience C"
+  - issn: 2430-3658
+  - volume:
+  - issue:
+
+abstract: >-
+  Bhumbra and Beato (2013) introduced Bayesian Quantal Analysis (BQA), which infers the quantal parameters of synaptic transmission from recorded response amplitudes by evaluating the posterior on a fixed grid. We reimplemented BQA just using their paper, without reading or implementing the authors' code. The likelihood and grid inference were reproduced. Simulation-based calibration, which the original paper did not run, shows unbiased point estimates and calibrated total-response, variability and site-count marginals. The quantal-size interval is conservative, covering 94.5 percent at a nominal 90 percent, because of the sum over candidate site counts. A first version of this analysis reported the opposite, caused by an off-by-half-cell error in our own rank statistic, which we write about. We also map identifiability across the release-probability contrast, compare BQA with multiple-probability fluctuation analysis, and show that at low signal-to-noise a 27 percent quantal-size bias comes from Gaussian-versus-gamma misspecification amplified by weak signal.
